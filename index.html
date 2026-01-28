@@ -2,7 +2,7 @@
 <html lang="lv">
 <head>
 <meta charset="UTF-8">
-<title>Puzlex</title>
+<title>Puzle</title>
 <style>
 :root {
   --board-size: 600px;
@@ -115,6 +115,48 @@ button:hover { background: #45a049; }
 .slot:hover { background: #f0f8ff; }
 </style>
 </head>
+<script>
+/* ====== PAMATA AIZSARDZĪBA PRET KODA APSKATI ====== */
+
+/* Aizliedz labo klikšķi */
+document.addEventListener("contextmenu", e => e.preventDefault());
+
+/* Bloķē biežākos īsceļus */
+document.addEventListener("keydown", e => {
+  if (
+    e.key === "F12" ||
+    (e.ctrlKey && e.shiftKey && ["I", "J", "C"].includes(e.key)) ||
+    (e.ctrlKey && e.key === "U")
+  ) {
+    e.preventDefault();
+    e.stopPropagation();
+    return false;
+  }
+});
+
+/* DevTools detekcija */
+(function detectDevTools() {
+  let devtoolsOpen = false;
+
+  const threshold = 160;
+  setInterval(() => {
+    const widthDiff = window.outerWidth - window.innerWidth;
+    const heightDiff = window.outerHeight - window.innerHeight;
+
+    if (widthDiff > threshold || heightDiff > threshold) {
+      if (!devtoolsOpen) {
+        devtoolsOpen = true;
+        document.body.innerHTML = "<h1>❌ Piekļuve liegta</h1>";
+      }
+    }
+  }, 500);
+})();
+
+/* Aizsardzība pret view-source */
+if (window.location.protocol === "view-source:") {
+  document.body.innerHTML = "";
+}
+</script>
 
 <body>
 
@@ -209,4 +251,5 @@ function checkWin() {
 
 </body>
 </html>
+
 
