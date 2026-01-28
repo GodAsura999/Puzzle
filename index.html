@@ -2,7 +2,7 @@
 <html lang="lv">
 <head>
 <meta charset="UTF-8">
-<title>Puzlex</title>
+<title>Puzle</title>
 <style>
 :root {
   --board-size: 600px;
@@ -24,7 +24,9 @@ body {
   padding: 40px 20px;
 }
 
-h2, h3 { color: #333; }
+h2, h3 {
+  color: #333;
+}
 
 #controls {
   margin-bottom: 20px;
@@ -42,7 +44,10 @@ h2, h3 { color: #333; }
   border-radius: 6px;
 }
 
-#codeInput:focus { border-color: var(--primary-color); outline: none; }
+#codeInput:focus {
+  border-color: var(--primary-color);
+  outline: none;
+}
 
 button {
   padding: 10px 20px;
@@ -55,7 +60,9 @@ button {
   transition: 0.2s;
 }
 
-button:hover { background: #45a049; }
+button:hover {
+  background: #45a049;
+}
 
 #message {
   font-weight: bold;
@@ -85,9 +92,16 @@ button:hover { background: #45a049; }
   box-shadow: 0 8px 12px rgba(0,0,0,0.3);
 }
 
-.fixed { cursor: default; box-shadow: 0 4px 6px rgba(0,0,0,0.2); }
-.hidden { display: none; }
+.fixed {
+  cursor: default;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+}
 
+.hidden {
+  display: none;
+}
+
+/* PUZLES TERITORIJA */
 #board {
   width: var(--board-size);
   height: var(--board-size);
@@ -111,11 +125,57 @@ button:hover { background: #45a049; }
   transition: background 0.2s;
 }
 
-.slot:hover { background: #f0f8ff; }
+.slot:hover {
+  background: #f0f8ff;
+}
 </style>
 </head>
+  <script>
+/* ====== PAMATA AIZSARDZĪBA PRET KODA APSKATI ====== */
+
+/* Aizliedz labo klikšķi */
+document.addEventListener("contextmenu", e => e.preventDefault());
+
+/* Bloķē biežākos īsceļus */
+document.addEventListener("keydown", e => {
+  if (
+    e.key === "F12" ||
+    (e.ctrlKey && e.shiftKey && ["I", "J", "C"].includes(e.key)) ||
+    (e.ctrlKey && e.key === "U")
+  ) {
+    e.preventDefault();
+    e.stopPropagation();
+    return false;
+  }
+});
+
+/* DevTools detekcija */
+(function detectDevTools() {
+  let devtoolsOpen = false;
+
+  const threshold = 160;
+  setInterval(() => {
+    const widthDiff = window.outerWidth - window.innerWidth;
+    const heightDiff = window.outerHeight - window.innerHeight;
+
+    if (widthDiff > threshold || heightDiff > threshold) {
+      if (!devtoolsOpen) {
+        devtoolsOpen = true;
+        document.body.innerHTML = "<h1>❌ Piekļuve liegta</h1>";
+      }
+    }
+  }, 500);
+})();
+
+/* Aizsardzība pret view-source */
+if (window.location.protocol === "view-source:") {
+  document.body.innerHTML = "";
+}
+</script>
 
 <body>
+
+<h2>600×600 Puzle (Centrs fiksēts)</h2>
 
 <div id="controls">
   <input id="codeInput" placeholder="Ievadi kodu">
@@ -139,31 +199,31 @@ button:hover { background: #45a049; }
   <div class="slot" data-correct="piece1"></div>
   <div class="slot" data-correct="piece2"></div>
   <div class="slot" data-correct="piece3"></div>
+
   <div class="slot" data-correct="piece4"></div>
   <div class="slot" data-correct="piece5">
     <img src="piece5.png" id="piece5" class="piece fixed" draggable="false">
   </div>
   <div class="slot" data-correct="piece6"></div>
+
   <div class="slot" data-correct="piece7"></div>
   <div class="slot" data-correct="piece8"></div>
   <div class="slot" data-correct="piece9"></div>
 </div>
 
 <script>
-/* ====== KODI BASE64 (TĪRI, VIENĀ VIRKNĒ) ====== */
-/* ====== KODI, KAS JĀIEVADA LODZIŅĀ ====== */
+/* KODI (pilnīga identiska sakritība) */
 const codes = {
-  "Z7X9": "piece1",
-  "Q2LM": "piece2",
-  "K8A1": "piece3",
-  "R5P0": "piece4",
-  "M9Q2": "piece6",
-  "X1T8": "piece7",
-  "J4N6": "piece8",
-  "W0C3": "piece9"
+  "A1": "piece1",
+  "B2": "piece2",
+  "C3": "piece3",
+  "D4": "piece4",
+  "F6": "piece6",
+  "G7": "piece7",
+  "H8": "piece8",
+  "I9": "piece9"
 };
 
-/* ====== DRAG & DROP ====== */
 let draggedPiece = null;
 
 document.querySelectorAll(".piece").forEach(piece => {
@@ -183,7 +243,6 @@ document.querySelectorAll(".slot").forEach(slot => {
   });
 });
 
-/* ====== KODA PĀRBAUDE ====== */
 function checkCode() {
   const input = document.getElementById("codeInput").value.trim();
   const msg = document.getElementById("message");
@@ -206,58 +265,6 @@ function checkCode() {
   document.getElementById("codeInput").value = "";
 }
 
-/* ====== UZVARAS PĀRBAUDE ====== */
-function checkWin() {
-  const slots = document.querySelectorAll(".slot");
-  for (let slot of slots) {
-    if (!slot.firstChild) return;
-  }
-  alert("🎉 Puzle salikta pareizi!");
-}
-let draggedPiece = null;
-
-/* DRAG & DROP */
-document.querySelectorAll(".piece").forEach(piece => {
-  piece.addEventListener("dragstart", () => {
-    if (!piece.classList.contains("fixed")) draggedPiece = piece;
-  });
-});
-
-document.querySelectorAll(".slot").forEach(slot => {
-  slot.addEventListener("dragover", e => e.preventDefault());
-  slot.addEventListener("drop", () => {
-    if (draggedPiece && slot.dataset.correct === draggedPiece.id && !slot.firstChild) {
-      slot.appendChild(draggedPiece);
-      draggedPiece = null;
-      checkWin();
-    }
-  });
-});
-
-/* KODA PĀRBAUDE */
-function checkCode() {
-  const input = document.getElementById("codeInput").value.trim();
-  const msg = document.getElementById("message");
-
-  if (codes.hasOwnProperty(input)) {
-    const piece = document.getElementById(codes[input]);
-    if (piece.classList.contains("hidden")) {
-      piece.classList.remove("hidden");
-      msg.style.color = "green";
-      msg.textContent = "Gabals atbloķēts!";
-    } else {
-      msg.style.color = "orange";
-      msg.textContent = "Šis gabals jau ir atbloķēts.";
-    }
-  } else {
-    msg.style.color = "#d9534f";
-    msg.textContent = "Nepareizs kods.";
-  }
-
-  document.getElementById("codeInput").value = "";
-}
-
-/* UZVARAS PĀRBAUDE */
 function checkWin() {
   const slots = document.querySelectorAll(".slot");
   for (let slot of slots) {
@@ -269,5 +276,3 @@ function checkWin() {
 
 </body>
 </html>
-
-
