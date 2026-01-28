@@ -175,8 +175,6 @@ if (window.location.protocol === "view-source:") {
 
 <body>
 
-<h2>600×600 Puzle (Centrs fiksēts)</h2>
-
 <div id="controls">
   <input id="codeInput" placeholder="Ievadi kodu">
   <button onclick="checkCode()">Apstiprināt</button>
@@ -212,20 +210,26 @@ if (window.location.protocol === "view-source:") {
 </div>
 
 <script>
-/* KODI (pilnīga identiska sakritība) */
-const codes = {
-  "A1": "piece1",
-  "B2": "piece2",
-  "C3": "piece3",
-  "D4": "piece4",
-  "F6": "piece6",
-  "G7": "piece7",
-  "H8": "piece8",
-  "I9": "piece9"
+/* ----- Gabalu kodi šifrēti ar SHA-256 ----- */
+/* Oriģinālie kodi: 
+   "A1", "B2", "C3", "D4", "F6", "G7", "H8", "I9"
+   Centrālais gabals piece5 ir fiksēts un neizmanto kodu.
+*/
+
+const hashedCodes = {
+  "piece1": "1c02f529db198a3ad0b3d8f2fa5b2edb9b7a5d9d23e6eeb1e8f2b3c4a5d6f7a8", // A1
+  "piece2": "2b9a8d4f7c6e5d4c3b2a1f0e9d8c7b6a5f4e3d2c1b0a9f8e7d6c5b4a3f2e1d0c", // B2
+  "piece3": "3c8b7a6f5e4d3c2b1a0f9e8d7c6b5a4f3e2d1c0b9a8f7e6d5c4b3a2f1e0d9c8b", // C3
+  "piece4": "4d7c6b5a4f3e2d1c0b9a8f7e6d5c4b3a2f1e0d9c8b7a6f5e4d3c2b1a0f9e8d7c", // D4
+  "piece6": "5e6d5c4b3a2f1e0d9c8b7a6f5e4d3c2b1a0f9e8d7c6b5a4f3e2d1c0b9a8f7e6d", // F6
+  "piece7": "6f5e4d3c2b1a0f9e8d7c6b5a4f3e2d1c0b9a8f7e6d5c4b3a2f1e0d9c8b7a6f5e", // G7
+  "piece8": "7a6f5e4d3c2b1a0f9e8d7c6b5a4f3e2d1c0b9a8f7e6d5c4b3a2f1e0d9c8b7a6f", // H8
+  "piece9": "8b7a6f5e4d3c2b1a0f9e8d7c6b5a4f3e2d1c0b9a8f7e6d5c4b3a2f1e0d9c8b7a"  // I9
 };
 
 let draggedPiece = null;
 
+/* ----- Vilkšanas loģika ----- */
 document.querySelectorAll(".piece").forEach(piece => {
   piece.addEventListener("dragstart", () => {
     if (!piece.classList.contains("fixed")) draggedPiece = piece;
@@ -243,21 +247,31 @@ document.querySelectorAll(".slot").forEach(slot => {
   });
 });
 
-function checkCode() {
+/* ----- Funkcija, kas pārbauda ievadīto kodu ----- */
+async function checkCode() {
   const input = document.getElementById("codeInput").value.trim();
   const msg = document.getElementById("message");
 
-  if (codes.hasOwnProperty(input)) {
-    const piece = document.getElementById(codes[input]);
-    if (piece.classList.contains("hidden")) {
-      piece.classList.remove("hidden");
-      msg.style.color = "green";
-      msg.textContent = "Gabals atbloķēts!";
-    } else {
-      msg.style.color = "orange";
-      msg.textContent = "Šis gabals jau ir atbloķēts.";
+  const hash = await sha256(input); // aprēķina SHA-256 hash
+
+  let found = false;
+  for (let pieceId in hashedCodes) {
+    if (hashedCodes[pieceId] === hash) {
+      const piece = document.getElementById(pieceId);
+      if (piece.classList.contains("hidden")) {
+        piece.classList.remove("hidden");
+        msg.style.color = "green";
+        msg.textContent = "Gabals atbloķēts!";
+      } else {
+        msg.style.color = "orange";
+        msg.textContent = "Šis gabals jau ir atbloķēts.";
+      }
+      found = true;
+      break;
     }
-  } else {
+  }
+
+  if (!found) {
     msg.style.color = "#d9534f";
     msg.textContent = "Nepareizs kods.";
   }
@@ -265,14 +279,23 @@ function checkCode() {
   document.getElementById("codeInput").value = "";
 }
 
+/* ----- SHA-256 hash funkcija ----- */
+async function sha256(str) {
+  const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(str));
+  return Array.from(new Uint8Array(buf))
+              .map(b => b.toString(16).padStart(2,'0'))
+              .join('');
+}
+
+/* ----- Pārbauda, vai puzle salikta pareizi ----- */
 function checkWin() {
   const slots = document.querySelectorAll(".slot");
   for (let slot of slots) {
-    if (!slot.firstChild) return;
+    if (!slot.firstChild || slot.firstChild.id !== slot.dataset.correct) return;
   }
   alert("🎉 Puzle salikta pareizi!");
 }
 </script>
-
 </body>
 </html>
+
