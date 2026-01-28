@@ -24,9 +24,7 @@ body {
   padding: 40px 20px;
 }
 
-h2, h3 {
-  color: #333;
-}
+h2, h3 { color: #333; }
 
 #controls {
   margin-bottom: 20px;
@@ -44,10 +42,7 @@ h2, h3 {
   border-radius: 6px;
 }
 
-#codeInput:focus {
-  border-color: var(--primary-color);
-  outline: none;
-}
+#codeInput:focus { border-color: var(--primary-color); outline: none; }
 
 button {
   padding: 10px 20px;
@@ -60,9 +55,7 @@ button {
   transition: 0.2s;
 }
 
-button:hover {
-  background: #45a049;
-}
+button:hover { background: #45a049; }
 
 #message {
   font-weight: bold;
@@ -92,14 +85,8 @@ button:hover {
   box-shadow: 0 8px 12px rgba(0,0,0,0.3);
 }
 
-.fixed {
-  cursor: default;
-  box-shadow: 0 4px 6px rgba(0,0,0,0.2);
-}
-
-.hidden {
-  display: none;
-}
+.fixed { cursor: default; box-shadow: 0 4px 6px rgba(0,0,0,0.2); }
+.hidden { display: none; }
 
 /* PUZLES TERITORIJA */
 #board {
@@ -125,53 +112,9 @@ button:hover {
   transition: background 0.2s;
 }
 
-.slot:hover {
-  background: #f0f8ff;
-}
+.slot:hover { background: #f0f8ff; }
 </style>
 </head>
-  <script>
-/* ====== PAMATA AIZSARDZĪBA PRET KODA APSKATI ====== */
-
-/* Aizliedz labo klikšķi */
-document.addEventListener("contextmenu", e => e.preventDefault());
-
-/* Bloķē biežākos īsceļus */
-document.addEventListener("keydown", e => {
-  if (
-    e.key === "F12" ||
-    (e.ctrlKey && e.shiftKey && ["I", "J", "C"].includes(e.key)) ||
-    (e.ctrlKey && e.key === "U")
-  ) {
-    e.preventDefault();
-    e.stopPropagation();
-    return false;
-  }
-});
-
-/* DevTools detekcija */
-(function detectDevTools() {
-  let devtoolsOpen = false;
-
-  const threshold = 160;
-  setInterval(() => {
-    const widthDiff = window.outerWidth - window.innerWidth;
-    const heightDiff = window.outerHeight - window.innerHeight;
-
-    if (widthDiff > threshold || heightDiff > threshold) {
-      if (!devtoolsOpen) {
-        devtoolsOpen = true;
-        document.body.innerHTML = "<h1>❌ Piekļuve liegta</h1>";
-      }
-    }
-  }, 500);
-})();
-
-/* Aizsardzība pret view-source */
-if (window.location.protocol === "view-source:") {
-  document.body.innerHTML = "";
-}
-</script>
 
 <body>
 
@@ -197,33 +140,23 @@ if (window.location.protocol === "view-source:") {
   <div class="slot" data-correct="piece1"></div>
   <div class="slot" data-correct="piece2"></div>
   <div class="slot" data-correct="piece3"></div>
-
   <div class="slot" data-correct="piece4"></div>
   <div class="slot" data-correct="piece5">
     <img src="piece5.png" id="piece5" class="piece fixed" draggable="false">
   </div>
   <div class="slot" data-correct="piece6"></div>
-
   <div class="slot" data-correct="piece7"></div>
   <div class="slot" data-correct="piece8"></div>
   <div class="slot" data-correct="piece9"></div>
 </div>
 
 <script>
-/* KODI (pilnīga identiska sakritība) */
-const codes = {
-  "A1": "piece1",
-  "B2": "piece2",
-  "C3": "piece3",
-  "D4": "piece4",
-  "F6": "piece6",
-  "G7": "piece7",
-  "H8": "piece8",
-  "I9": "piece9"
-};
+/* ====== KODI BASE64 FORMĀTĀ ====== */
+const codes = JSON.parse(atob("eyJaN1giOiJwaWVjZTEiLCJRMkxN Ijoi cGllY2UyIiwiSzhBM SI6InBpZWNlMyIsIlI1UDAiOiJwaWVjZTQiLCJNOVEyIjoicGllY2U2IiwiWDFUOCI6InBpZWNlNyIsIko0TjYiOiJwaWVjZTgiLCJXMEMzIjoicGllY2U5In0="));
 
 let draggedPiece = null;
 
+/* DRAG & DROP */
 document.querySelectorAll(".piece").forEach(piece => {
   piece.addEventListener("dragstart", () => {
     if (!piece.classList.contains("fixed")) draggedPiece = piece;
@@ -241,6 +174,7 @@ document.querySelectorAll(".slot").forEach(slot => {
   });
 });
 
+/* KODA PĀRBAUDE */
 function checkCode() {
   const input = document.getElementById("codeInput").value.trim();
   const msg = document.getElementById("message");
@@ -263,6 +197,7 @@ function checkCode() {
   document.getElementById("codeInput").value = "";
 }
 
+/* UZVARAS PĀRBAUDE */
 function checkWin() {
   const slots = document.querySelectorAll(".slot");
   for (let slot of slots) {
@@ -274,5 +209,3 @@ function checkWin() {
 
 </body>
 </html>
-
-
