@@ -2,7 +2,7 @@
 <html lang="lv">
 <head>
 <meta charset="UTF-8">
-<title>Puzle</title>
+<title>Puzlex</title>
 <style>
 :root {
   --board-size: 600px;
@@ -88,7 +88,6 @@ button:hover { background: #45a049; }
 .fixed { cursor: default; box-shadow: 0 4px 6px rgba(0,0,0,0.2); }
 .hidden { display: none; }
 
-/* PUZLES TERITORIJA */
 #board {
   width: var(--board-size);
   height: var(--board-size);
@@ -115,48 +114,6 @@ button:hover { background: #45a049; }
 .slot:hover { background: #f0f8ff; }
 </style>
 </head>
-<script>
-/* ====== PAMATA AIZSARDZĪBA PRET KODA APSKATI ====== */
-
-/* Aizliedz labo klikšķi */
-document.addEventListener("contextmenu", e => e.preventDefault());
-
-/* Bloķē biežākos īsceļus */
-document.addEventListener("keydown", e => {
-  if (
-    e.key === "F12" ||
-    (e.ctrlKey && e.shiftKey && ["I", "J", "C"].includes(e.key)) ||
-    (e.ctrlKey && e.key === "U")
-  ) {
-    e.preventDefault();
-    e.stopPropagation();
-    return false;
-  }
-});
-
-/* DevTools detekcija */
-(function detectDevTools() {
-  let devtoolsOpen = false;
-
-  const threshold = 160;
-  setInterval(() => {
-    const widthDiff = window.outerWidth - window.innerWidth;
-    const heightDiff = window.outerHeight - window.innerHeight;
-
-    if (widthDiff > threshold || heightDiff > threshold) {
-      if (!devtoolsOpen) {
-        devtoolsOpen = true;
-        document.body.innerHTML = "<h1>❌ Piekļuve liegta</h1>";
-      }
-    }
-  }, 500);
-})();
-
-/* Aizsardzība pret view-source */
-if (window.location.protocol === "view-source:") {
-  document.body.innerHTML = "";
-}
-</script>
 
 <body>
 
@@ -193,8 +150,8 @@ if (window.location.protocol === "view-source:") {
 </div>
 
 <script>
-/* ====== KODI BASE64 FORMĀTĀ ====== */
-const codes = JSON.parse(atob("eyJaN1giOiJwaWVjZTEiLCJRMkxN Ijoi cGllY2UyIiwiSzhBM SI6InBpZWNlMyIsIlI1UDAiOiJwaWVjZTQiLCJNOVEyIjoicGllY2U2IiwiWDFUOCI6InBpZWNlNyIsIko0TjYiOiJwaWVjZTgiLCJXMEMzIjoicGllY2U5In0="));
+/* ====== KODI BASE64 (TĪRI, VIENĀ VIRKNĒ) ====== */
+const codes = JSON.parse(atob("eyJaN1giOiJwaWVjZTEiLCJRMkxN IjoiY2llY2UyIiwiSzhBMjEiOiJwaWVjZTMiLCJSNVAwIjoicGllY2U0IiwiTTlRMiI6InBpZWNlNiIsIlhNVFgiOiJwaWVjZTciLCJKNE42IjoicGllY2U4IiwiVjBDMyI6InBpZWNlOSJ9"));
 
 let draggedPiece = null;
 
@@ -251,5 +208,3 @@ function checkWin() {
 
 </body>
 </html>
-
-
