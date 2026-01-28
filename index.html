@@ -2,7 +2,7 @@
 <html lang="lv">
 <head>
 <meta charset="UTF-8">
-<title>Puzlexx</title>
+<title>Puzlex</title>
 <style>
 :root {
   --board-size: 600px;
@@ -151,8 +151,69 @@ button:hover { background: #45a049; }
 
 <script>
 /* ====== KODI BASE64 (TĪRI, VIENĀ VIRKNĒ) ====== */
-const codes = JSON.parse(atob("eyJaN1giOiJwaWVjZTEiLCJRMkxNIjoiY2llY2UyIiwiSzhBMjEiOiJwaWVjZTMiLCJSNVAwIjoicGllY2U0IiwiTTlRMiI6InBpZWNlNiIsIlhNVFgiOiJwaWVjZTciLCJKNE42IjoicGllY2U4IiwiVjBDMyI6InBpZWNlOSJ9"));
+/* ====== KODI, KAS JĀIEVADA LODZIŅĀ ====== */
+const codes = {
+  "Z7X9": "piece1",
+  "Q2LM": "piece2",
+  "K8A1": "piece3",
+  "R5P0": "piece4",
+  "M9Q2": "piece6",
+  "X1T8": "piece7",
+  "J4N6": "piece8",
+  "W0C3": "piece9"
+};
 
+/* ====== DRAG & DROP ====== */
+let draggedPiece = null;
+
+document.querySelectorAll(".piece").forEach(piece => {
+  piece.addEventListener("dragstart", () => {
+    if (!piece.classList.contains("fixed")) draggedPiece = piece;
+  });
+});
+
+document.querySelectorAll(".slot").forEach(slot => {
+  slot.addEventListener("dragover", e => e.preventDefault());
+  slot.addEventListener("drop", () => {
+    if (draggedPiece && slot.dataset.correct === draggedPiece.id && !slot.firstChild) {
+      slot.appendChild(draggedPiece);
+      draggedPiece = null;
+      checkWin();
+    }
+  });
+});
+
+/* ====== KODA PĀRBAUDE ====== */
+function checkCode() {
+  const input = document.getElementById("codeInput").value.trim();
+  const msg = document.getElementById("message");
+
+  if (codes.hasOwnProperty(input)) {
+    const piece = document.getElementById(codes[input]);
+    if (piece.classList.contains("hidden")) {
+      piece.classList.remove("hidden");
+      msg.style.color = "green";
+      msg.textContent = "Gabals atbloķēts!";
+    } else {
+      msg.style.color = "orange";
+      msg.textContent = "Šis gabals jau ir atbloķēts.";
+    }
+  } else {
+    msg.style.color = "#d9534f";
+    msg.textContent = "Nepareizs kods.";
+  }
+
+  document.getElementById("codeInput").value = "";
+}
+
+/* ====== UZVARAS PĀRBAUDE ====== */
+function checkWin() {
+  const slots = document.querySelectorAll(".slot");
+  for (let slot of slots) {
+    if (!slot.firstChild) return;
+  }
+  alert("🎉 Puzle salikta pareizi!");
+}
 let draggedPiece = null;
 
 /* DRAG & DROP */
@@ -208,4 +269,5 @@ function checkWin() {
 
 </body>
 </html>
+
 
