@@ -187,43 +187,43 @@ if (location.href.startsWith("view-source:")) {
 
 <h3>Atbloķētie gabali</h3>
 <div id="pieces">
-  <img src="piece1.png" id="piece1" class="piece hidden" draggable="true">
   <img src="piece2.png" id="piece2" class="piece hidden" draggable="true">
   <img src="piece3.png" id="piece3" class="piece hidden" draggable="true">
   <img src="piece4.png" id="piece4" class="piece hidden" draggable="true">
+  <img src="piece4.png" id="piece5" class="piece hidden" draggable="true">
   <img src="piece6.png" id="piece6" class="piece hidden" draggable="true">
   <img src="piece7.png" id="piece7" class="piece hidden" draggable="true">
   <img src="piece8.png" id="piece8" class="piece hidden" draggable="true">
-  <img src="piece9.png" id="piece9" class="piece hidden" draggable="true">
 </div>
 
 <div id="board">
-  <div class="slot" data-correct="piece1"></div>
+  <div class="slot" data-correct="piece1">
+    <img src="piece1.png" id="piece1" class="piece fixed" draggable="false">
+  </div>
   <div class="slot" data-correct="piece2"></div>
   <div class="slot" data-correct="piece3"></div>
 
   <div class="slot" data-correct="piece4"></div>
-  <div class="slot" data-correct="piece5">
-    <img src="piece5.png" id="piece5" class="piece fixed" draggable="false">
-  </div>
+  <div class="slot" data-correct="piece5"></div>
   <div class="slot" data-correct="piece6"></div>
 
   <div class="slot" data-correct="piece7"></div>
   <div class="slot" data-correct="piece8"></div>
-  <div class="slot" data-correct="piece9"></div>
+  <div class="slot" data-correct="piece9">
+  <img src="piece9.png" id="piece9" class="piece fixed" draggable="false">
+  </div>
 </div>
 
 <script>
 /* KODI (pilnīga identiska sakritība) */
 const codes = {
-  "A1": "piece1",
   "B2": "piece2",
   "C3": "piece3",
   "D4": "piece4",
+  "E5": "piece5",
   "F6": "piece6",
   "G7": "piece7",
-  "H8": "piece8",
-  "I9": "piece9"
+  "H8": "piece8"
 };
 
 let draggedPiece = null;
@@ -278,3 +278,4 @@ function checkWin() {
 
 </body>
 </html>
+
