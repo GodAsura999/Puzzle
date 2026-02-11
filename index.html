@@ -3,12 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <title>Puzle</title>
+
 <style>
 :root {
   --board-size: 600px;
   --piece-size: 200px;
   --primary-color: #4CAF50;
-  --secondary-color: #f0f0f0;
   --slot-border: #aaa;
 }
 
@@ -18,14 +18,9 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: flex-start;
   min-height: 100vh;
   margin: 0;
   padding: 40px 20px;
-}
-
-h2, h3 {
-  color: #333;
 }
 
 #controls {
@@ -39,14 +34,9 @@ h2, h3 {
 #codeInput {
   padding: 10px;
   font-size: 16px;
-  width: 200px;
+  width: 250px;
   border: 2px solid #ccc;
   border-radius: 6px;
-}
-
-#codeInput:focus {
-  border-color: var(--primary-color);
-  outline: none;
 }
 
 button {
@@ -57,17 +47,13 @@ button {
   font-size: 16px;
   border-radius: 6px;
   cursor: pointer;
-  transition: 0.2s;
 }
 
-button:hover {
-  background: #45a049;
-}
+#message { min-height: 20px; font-weight: bold; }
 
-#message {
+#timerDisplay {
+  font-size: 18px;
   font-weight: bold;
-  color: #d9534f;
-  min-height: 20px;
 }
 
 #pieces {
@@ -84,98 +70,29 @@ button:hover {
   cursor: grab;
   border-radius: 6px;
   box-shadow: 0 4px 6px rgba(0,0,0,0.2);
-  transition: transform 0.2s, box-shadow 0.2s;
 }
 
-.piece:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 12px rgba(0,0,0,0.3);
-}
+.fixed { cursor: default; }
+.hidden { display: none; }
 
-.fixed {
-  cursor: default;
-  box-shadow: 0 4px 6px rgba(0,0,0,0.2);
-}
-
-.hidden {
-  display: none;
-}
-
-/* PUZLES TERITORIJA */
 #board {
   width: var(--board-size);
   height: var(--board-size);
   display: grid;
   grid-template-columns: repeat(3, var(--piece-size));
   grid-template-rows: repeat(3, var(--piece-size));
-  gap: 0;
-  border-radius: 12px;
-  overflow: hidden;
   border: 5px solid #333;
-  box-shadow: 0 8px 20px rgba(0,0,0,0.3);
   background: white;
 }
 
 .slot {
   border: 2px dashed var(--slot-border);
-  box-sizing: border-box;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: background 0.2s;
-}
-
-.slot:hover {
-  background: #f0f8ff;
 }
 </style>
 </head>
-  <script>
-/* ===============================
-   MAKSIMĀLĀ KLIENTA PUSES AIZSARDZĪBA
-   =============================== */
-
-/* Aizliedz labo klikšķi */
-document.addEventListener("contextmenu", e => e.preventDefault(), true);
-
-/* Bloķē īsceļus */
-document.addEventListener("keydown", function (e) {
-  const key = e.key.toUpperCase();
-
-  if (
-    key === "F12" ||
-    (e.ctrlKey && key === "U") ||              // Ctrl+U
-    (e.ctrlKey && e.shiftKey && ["I","J","C"].includes(key)) ||
-    (e.metaKey && e.altKey && ["I","J"].includes(key)) // macOS
-  ) {
-    e.preventDefault();
-    e.stopImmediatePropagation();
-    return false;
-  }
-}, true);
-
-/* View-source mēģinājuma dzēšana */
-if (location.href.startsWith("view-source:")) {
-  document.documentElement.innerHTML = "";
-}
-
-/* DevTools detekcija (Chrome, Edge, Firefox) */
-(function () {
-  let triggered = false;
-
-  const check = () => {
-    const widthGap = window.outerWidth - window.innerWidth > 160;
-    const heightGap = window.outerHeight - window.innerHeight > 160;
-
-    if ((widthGap || heightGap) && !triggered) {
-      triggered = true;
-      document.body.innerHTML = "<h1>Piekļuve liegta</h1>";
-    }
-  };
-
-  setInterval(check, 300);
-})();
-</script>
 
 <body>
 
@@ -183,6 +100,7 @@ if (location.href.startsWith("view-source:")) {
   <input id="codeInput" placeholder="Ievadi kodu">
   <button onclick="checkCode()">Apstiprināt</button>
   <p id="message"></p>
+  <p id="timerDisplay">Laiks: <span id="timer">0</span> s</p>
 </div>
 
 <h3>Atbloķētie gabali</h3>
@@ -202,25 +120,35 @@ if (location.href.startsWith("view-source:")) {
   </div>
   <div class="slot" data-correct="piece2"></div>
   <div class="slot" data-correct="piece3"></div>
-
   <div class="slot" data-correct="piece4"></div>
   <div class="slot" data-correct="piece5"></div>
   <div class="slot" data-correct="piece6"></div>
-
   <div class="slot" data-correct="piece7"></div>
   <div class="slot" data-correct="piece8"></div>
   <div class="slot" data-correct="piece9">
-  <img src="piece9.png" id="piece9" class="piece fixed" draggable="false">
+    <img src="piece9.png" id="piece9" class="piece fixed" draggable="false">
   </div>
 </div>
 
 <script>
-/* KODI (pilnīga identiska sakritība) */
+
+/* ====== TAIMERIS SĀKAS PIE LAPAS IELĀDES ====== */
+let time = 0;
+let timerInterval = null;
+
+window.onload = function() {
+  timerInterval = setInterval(() => {
+    time++;
+    document.getElementById("timer").textContent = time;
+  }, 1000);
+};
+
+/* ====== KODI ====== */
 const codes = {
   "b1nary": "piece2",
   "ch@os": "piece3",
   "SALDUS123": "piece4",
-  "FESTIVĀLS-SALDUS-SAULE": "piece5",
+  "FESTIVĀLS SALDUS SAULE": "piece5",
   "F6": "piece6",
   "G7": "piece7",
   "H8": "piece8"
@@ -230,7 +158,9 @@ let draggedPiece = null;
 
 document.querySelectorAll(".piece").forEach(piece => {
   piece.addEventListener("dragstart", () => {
-    if (!piece.classList.contains("fixed")) draggedPiece = piece;
+    if (!piece.classList.contains("fixed")) {
+      draggedPiece = piece;
+    }
   });
 });
 
@@ -245,12 +175,19 @@ document.querySelectorAll(".slot").forEach(slot => {
   });
 });
 
+/* ====== NORMALIZĒ ATSTARPES ====== */
+function normalizeInput(str) {
+  return str.trim().replace(/\s+/g, " ");
+}
+
 function checkCode() {
-  const input = document.getElementById("codeInput").value.trim();
+  const rawInput = document.getElementById("codeInput").value;
+  const input = normalizeInput(rawInput);
   const msg = document.getElementById("message");
 
   if (codes.hasOwnProperty(input)) {
     const piece = document.getElementById(codes[input]);
+
     if (piece.classList.contains("hidden")) {
       piece.classList.remove("hidden");
       msg.style.color = "green";
@@ -272,15 +209,13 @@ function checkWin() {
   for (let slot of slots) {
     if (!slot.firstChild) return;
   }
-  alert("🎉 Puzle salikta pareizi!");
+
+  clearInterval(timerInterval);
+
+  alert("🎉 Puzle salikta pareizi!\nTavs laiks: " + time + " sekundes");
 }
+
 </script>
 
 </body>
 </html>
-
-
-
-
-
-
