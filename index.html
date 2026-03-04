@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="lv">
+<head>
+<meta charset="UTF-8">
+<title>Puzle</title>
+
+<style>
+:root {
+  --board-size: 600px;
+  --piece-size: 200px;
+  --primary-color: #4CAF50;
+  --slot-border: #aaa;
+}
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: linear-gradient(120deg, #f0f4f8, #d9e2ec);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 100vh;
+  margin: 0;
+  padding: 40px 20px;
+}
+
+#controls {
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+#codeInput {
+  padding: 10px;
+  font-size: 16px;
+  width: 250px;
+  border: 2px solid #ccc;
+  border-radius: 6px;
+}
+
+button {
+  padding: 10px 20px;
+  background: var(--primary-color);
+  border: none;
+  color: white;
+  font-size: 16px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+#message { min-height: 20px; font-weight: bold; }
+
+#timerDisplay {
+  font-size: 18px;
+  font-weight: bold;
+}
+
+#pieces {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 30px;
+}
+
+.piece {
+  width: var(--piece-size);
+  height: var(--piece-size);
+  cursor: grab;
+  border-radius: 6px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+}
+
+.fixed { cursor: default; }
+.hidden { display: none; }
+
+#board {
+  width: var(--board-size);
+  height: var(--board-size);
+  display: grid;
+  grid-template-columns: repeat(3, var(--piece-size));
+  grid-template-rows: repeat(3, var(--piece-size));
+  border: 5px solid #333;
+  background: white;
+}
+
+.slot {
+  border: 2px dashed var(--slot-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+</style>
+</head>
+
+<body>
+
+<div id="controls">
+  <input id="codeInput" placeholder="Ievadi kodu">
+  <button onclick="checkCode()">Apstiprināt</button>
+  <p id="message"></p>
+  <p id="timerDisplay">Laiks: <span id="timer">0</span> s</p>
+</div>
+
+<h3>Atbloķētie gabali</h3>
+<div id="pieces">
+  <img src="piece2.png" id="piece2" class="piece hidden" draggable="true">
+  <img src="piece3.png" id="piece3" class="piece hidden" draggable="true">
+  <img src="piece4.png" id="piece4" class="piece hidden" draggable="true">
+  <img src="piece5.png" id="piece5" class="piece hidden" draggable="true">
+  <img src="piece6.png" id="piece6" class="piece hidden" draggable="true">
+  <img src="piece7.png" id="piece7" class="piece hidden" draggable="true">
+  <img src="piece8.png" id="piece8" class="piece hidden" draggable="true">
+</div>
+
+<div id="board">
+  <div class="slot" data-correct="piece1">
+    <img src="piece1.png" id="piece1" class="piece fixed" draggable="false">
+  </div>
+  <div class="slot" data-correct="piece2"></div>
+  <div class="slot" data-correct="piece3"></div>
+  <div class="slot" data-correct="piece4"></div>
+  <div class="slot" data-correct="piece5"></div>
+  <div class="slot" data-correct="piece6"></div>
+  <div class="slot" data-correct="piece7"></div>
+  <div class="slot" data-correct="piece8"></div>
+  <div class="slot" data-correct="piece9">
+    <img src="piece9.png" id="piece9" class="piece fixed" draggable="false">
+  </div>
+</div>
+
+<script>
+
+/* ====== TAIMERIS SĀKAS PIE LAPAS IELĀDES ====== */
+let time = 0;
+let timerInterval = null;
+
+window.onload = function() {
+  timerInterval = setInterval(() => {
+    time++;
+    document.getElementById("timer").textContent = time;
+  }, 1000);
+};
+
+/* ====== KODI ====== */
+const codes = {
+  "b1nary": "piece2",
+  "ch@os": "piece3",
+  "SALDUS123": "piece4",
+  "FESTIVĀLS SALDUS SAULE": "piece5",
+  "F6": "piece6",
+  "G7": "piece7",
+  "H8": "piece8"
+};
+
+let draggedPiece = null;
+
+document.querySelectorAll(".piece").forEach(piece => {
+  piece.addEventListener("dragstart", () => {
+    if (!piece.classList.contains("fixed")) {
+      draggedPiece = piece;
+    }
+  });
+});
+
+document.querySelectorAll(".slot").forEach(slot => {
+  slot.addEventListener("dragover", e => e.preventDefault());
+  slot.addEventListener("drop", () => {
+    if (draggedPiece && slot.dataset.correct === draggedPiece.id && !slot.firstChild) {
+      slot.appendChild(draggedPiece);
+      draggedPiece = null;
+      checkWin();
+    }
+  });
+});
+
+/* ====== NORMALIZĒ ATSTARPES ====== */
+function normalizeInput(str) {
+  return str.trim().replace(/\s+/g, " ");
+}
+
+function checkCode() {
+  const rawInput = document.getElementById("codeInput").value;
+  const input = normalizeInput(rawInput);
+  const msg = document.getElementById("message");
+
+  if (codes.hasOwnProperty(input)) {
+    const piece = document.getElementById(codes[input]);
+
+    if (piece.classList.contains("hidden")) {
+      piece.classList.remove("hidden");
+      msg.style.color = "green";
+      msg.textContent = "Gabals atbloķēts!";
+    } else {
+      msg.style.color = "orange";
+      msg.textContent = "Šis gabals jau ir atbloķēts.";
+    }
+  } else {
+    msg.style.color = "#d9534f";
+    msg.textContent = "Nepareizs kods.";
+  }
+
+  document.getElementById("codeInput").value = "";
+}
+
+function checkWin() {
+  const slots = document.querySelectorAll(".slot");
+  for (let slot of slots) {
+    if (!slot.firstChild) return;
+  }
+
+  clearInterval(timerInterval);
+
+  alert("🎉 Puzle salikta pareizi!\nTavs laiks: " + time + " sekundes");
+}
+
+</script>
+
+</body>
+</html>
