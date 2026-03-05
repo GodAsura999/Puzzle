@@ -136,10 +136,22 @@ button {
 let time = 0;
 let timerInterval = null;
 
+function formatTime(seconds) {
+  const hours = Math.floor(seconds / 3600);
+  const minutes = Math.floor((seconds % 3600) / 60);
+  const secs = seconds % 60;
+
+  return (
+    String(hours).padStart(2, "0") + ":" +
+    String(minutes).padStart(2, "0") + ":" +
+    String(secs).padStart(2, "0")
+  );
+}
+
 window.onload = function() {
   timerInterval = setInterval(() => {
     time++;
-    document.getElementById("timer").textContent = time;
+    document.getElementById("timer").textContent = formatTime(time);
   }, 1000);
 };
 
@@ -219,4 +231,5 @@ function checkWin() {
 
 </body>
 </html>
+
 
